@@ -1,0 +1,122 @@
+\documentclass[submission,copyright,creativecommons]{eptcs}
+\providecommand{\event}{ACL2 Workshop 2017} % Name of the event you are submitting to
+% \usepackage{breakurl}             % Not needed if you use pdflatex only.
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\usepackage{fancyvrb}
+% so we can use \-/ for breakable dashes in long names
+\usepackage[shortcuts]{extdash}
+% \usepackage{bigfoot}
+% \usepackage{tikz}
+\usepackage{color}
+\usepackage{framed}
+
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{corollary}{Corollary}
+
+% The first of the following two definitions of the comment
+% environment is adapted from
+% http://tex.stackexchange.com/questions/71371/how-to-change-color-in-an-environment
+% while the second comes from a package.  Choose the first to see
+% comments and the second to hide them.
+
+\newenvironment{comment}
+  {\par\medskip
+   \color{red}%
+   \begin{framed}
+   \ignorespaces}
+ {\end{framed}
+  \medskip}
+
+% \usepackage{comment}
+
+% Neither of the following worked for me:
+
+%\newenvironment{mycomment}{{\begin{comment}}}{{\end{comment}}}
+
+% \let\mycomment\comment
+% \let\endmycomment\endcomment
+
+\usepackage{listings}
+\lstset{ %
+  basicstyle=\normalsize\ttfamily,
+  language=lisp,
+  columns=fullflexible,
+  escapeinside={\<}{\>},
+}
+
+\newcommand*{\var}[1]{\mathit{#1}}
+
+\title{Hint Orchestration Using ACL2's Simplifier}
+\author{Sol Swords
+\institute{Centaur Techology, Inc.\\
+Austin, TX, USA}
+\email{sswords@centtech.com}
+}
+\def\titlerunning{Hint Orchestration}
+\def\authorrunning{S. Swords}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  This paper describes a mechanism for providing hints during a proof.
+  An extra literal is added to the goal clause and simplified along
+  with the rest of the goal until it is stable under simplification,
+  after which the simplified literal is examined and a hint extracted
+  from it.  This simple technique supports some commonly desirable yet
+  elusive features: it can provide different hints to different cases
+  of a case split; it can share subterms among the terms supplied in a
+  hint; and since the terms used in the hint have been simplified
+  along with the rest of the goal, they match other occurrences of
+  those terms in the rest of the goal.  We additionally describe an
+  extension to this mechanism that can sequence such hints.
+
+\end{abstract}
+
+
+ACL2's mechanism for giving hints to the prover is very powerful and
+general.  Users can provide arbitrary code to evaluate whether a hint
+should be given and what that hint should be.  However, it is
+surprisingly difficult to accomplish certain things with computed
+hints.  Consider a proof that splits into two cases, one assuming term
+\texttt{A} true and one assuming it false.  Suppose we want to supply
+a hint \texttt{H1} when \texttt{A} is assumed true and
+\texttt{H2} when it is assumed false.  A computed hint can examine the
+clause to see when the case split occurs and which case has resulted
+-- if \texttt{(not A)} is a member of the clause, then \texttt{A} is
+assumed true, and if \texttt{A} is a member of the clause, it is
+assumed false:
+\begin{verbatim}
+  :hints ((and (member-equal '(not A) clause) H1)
+          (and (member-equal 'A clause) H2))
+\end{verbatim}
+However, this strategy is more brittle than it may appear.  A small
+change in rewriting strategy could cause the exact form of the term
+\texttt{A} in the clause to change, even if the proof still case
+splits on a term with the same meaning.  Even a change to inlining of
+a function can affect the macroexpansion of the term, which changes
+the exact appearance of the term in the clause.
+
+
+
+
+  When a proof splits
+into cases, often one wants to give different hints in different
+conditions.  Explicit hints are a poor solution for this because
+they are broken whenever subgoal numbers change.  Computed hints are
+general enough to accomplish this, but 
+
+
+  Explicit hints
+  (except when triggered on ``Goal'') can be broken by any change in
+  subgoal numbering, which happens often due to changes in underlying
+  function definitions or system heuristics.  Computed hints are a
+  very general mechanism that can be difficult to harness effectively
+  without intermediate utilities.  In this paper we discuss a way to use computed hints to 
+
+
+% \nocite{*}
+\bibliographystyle{eptcs}
+\bibliography{paper}
+\end{document}
+
+
